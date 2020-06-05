@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bernd/media"
 	"fmt"
 	"log"
 	"os/user"
@@ -94,21 +95,23 @@ func download(url string) string {
 	return "SUCCESS"
 }
 
-func pick() string {
-	path, _, err := dlgs.File("List", "", false)
+func pick() (*media.File, error) {
+	path, _, err := dlgs.File("Datei auswählen", "", false)
 
 	if err != nil {
-		log.Println("here")
-		log.Fatal(err.Error())
+		log.Print(err.Error())
+		return nil, err
 	}
 
 	selectedFilePath = path
 
 	err = trans.Initialize(selectedFilePath, "")
 	if err != nil {
-		log.Println("threr")
-		log.Fatal(err.Error())
+		log.Print(err.Error())
+		return nil, err
 	}
 
-	return "{\"name\": \"" + filepath.Base(selectedFilePath) + "\"}"
+	metadata := trans.MediaFile().Metadata()
+
+	return &media.File{Name: filepath.Base(selectedFilePath), Folder: filepath.Dir(selectedFilePath), Duration: metadata.Format.Duration, Size: metadata.Format.Size, Bitrate: metadata.Format.BitRate, Format: metadata.Format.FormatLongName}, nil
 }

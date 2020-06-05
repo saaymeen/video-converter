@@ -8,7 +8,8 @@ import DownloadPage from "./pages/download";
 import GlobalStyles from "./styles/global";
 import { Provider } from "react-redux";
 
-import store from "./services/state/store";
+import { configureStore } from "./services/store";
+const store = configureStore();
 
 function App() {
   return (

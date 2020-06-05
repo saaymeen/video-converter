@@ -1,9 +1,41 @@
 import React, { ReactElement, FC, useState } from "react";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
+import { pickFileThunk } from "../services/convert/convert-actions";
+
+import { useSelector, AppState } from "../services/store";
+import { MediaFile } from "../components/atoms/file";
 
 type FileInfo = {
   name: string;
+};
+
+const PickSection: FC = (): ReactElement => {
+  const dispatch = useDispatch();
+  return (
+    <PickButton onClick={() => dispatch(pickFileThunk())}>
+      Datei auswählen
+    </PickButton>
+  );
+};
+
+const PickedSection: FC<{ mediaFile: MediaFile }> = ({
+  mediaFile,
+}): ReactElement => {
+  const dispatch = useDispatch();
+
+  return (
+    <>
+      <Info>
+        <h3>Format</h3>
+        <p>{mediaFile.format}</p>
+      </Info>
+      <ButtonRow>
+        <PG>Konvertieren</PG>
+        <PG>Andere Datei auswählen</PG>
+      </ButtonRow>
+    </>
+  );
 };
 
 const ConvertPage: FC = (): ReactElement => {
@@ -11,34 +43,20 @@ const ConvertPage: FC = (): ReactElement => {
   const [status, setStatus] = useState("");
 
   const dispatch = useDispatch();
+  const { mediaFile } = useSelector((state) => state.convert);
+  const mf = {
+    name: "youtube-download-2020-Jun-Thu-12-10-33.mp4",
+    folder: "/home/saaymeen/Videos",
+    bitrate: "634520",
+    duration: "600.097000",
+    size: "47596749",
+    format: "QuickTime / MOV",
+  };
 
   return (
     <Container>
-      <PickButton
-        onClick={() => {
-          if (fileInfo) {
-            (window as any).backend
-              .convert()
-              .then((status: string) => setStatus(status));
-          } else {
-            dispatch({ type: "SELECT_FILE" });
-            //(window as any).backend.pick().then((fileInfo: string) => {
-            //  console.log(fileInfo);
-            //  console.log(JSON.parse(fileInfo));
-            //  console.log({ name: "test" });
-            //  setFileInfo(JSON.parse(fileInfo) as FileInfo);
-            //});
-          }
-        }}
-      >
-        {fileInfo ? "Datei umwandeln" : "Datei auswählen"}
-      </PickButton>
-      {fileInfo && <Status>Datei: {fileInfo.name}</Status>}
-      <Status>
-        {status === "UNINITIALIZED" ? "FFmpeg nicht installiert" : null}
-        {status === "CONVERSION_ERROR" ? "FFmpeg ausführung fehlerhaft" : null}
-        {status === "SUCCESS" ? "Konvertierung abgeschlossen" : null}
-      </Status>
+      <PickedSection mediaFile={mf as MediaFile} />
+      {mediaFile ? <PickedSection mediaFile={mediaFile} /> : <PickSection />}
     </Container>
   );
 };
@@ -88,10 +106,23 @@ const PickButton = styled.button`
   }
 `;
 
+const PG = styled(PickButton)``;
+
 const Status = styled.p`
   font-family: "Poppins";
   font-size: 1.225rem;
   color: black;
   margin-left: 4rem;
   margin-top: 1rem;
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+`;
+
+const Info = styled.div`
+  display: flex;
+  flex-direction: row;
 `;
