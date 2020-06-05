@@ -1,5 +1,6 @@
 import React, { ReactElement, FC, useState } from "react";
 import styled from "styled-components";
+import { connect, useDispatch } from "react-redux";
 
 type FileInfo = {
   name: string;
@@ -8,6 +9,8 @@ type FileInfo = {
 const ConvertPage: FC = (): ReactElement => {
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
   const [status, setStatus] = useState("");
+
+  const dispatch = useDispatch();
 
   return (
     <Container>
@@ -18,12 +21,13 @@ const ConvertPage: FC = (): ReactElement => {
               .convert()
               .then((status: string) => setStatus(status));
           } else {
-            (window as any).backend.pick().then((fileInfo: string) => {
-              console.log(fileInfo);
-              console.log(JSON.parse(fileInfo));
-              console.log({ name: "test" });
-              setFileInfo(JSON.parse(fileInfo) as FileInfo);
-            });
+            dispatch({ type: "SELECT_FILE" });
+            //(window as any).backend.pick().then((fileInfo: string) => {
+            //  console.log(fileInfo);
+            //  console.log(JSON.parse(fileInfo));
+            //  console.log({ name: "test" });
+            //  setFileInfo(JSON.parse(fileInfo) as FileInfo);
+            //});
           }
         }}
       >
